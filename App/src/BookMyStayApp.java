@@ -1,33 +1,113 @@
 /**
- * BookMyStayApp is the entry point for the Hotel Booking application.
- * It demonstrates how a Java program starts execution and prints output to the console.
- *
- * The application displays a welcome message along with the application
- * name and version information.
+ * Entry point for demonstrating Room modeling using abstraction and inheritance.
+ * This program creates different room types and displays their details
+ * along with availability information.
  *
  * @author YourName
  * @version 1.0
  */
 public class BookMyStayApp {
 
-    /**
-     * The main method is the entry point of the application.
-     * The JVM invokes this method to start program execution.
-     *
-     * @param args Command-line arguments (not used in this application)
-     */
     public static void main(String[] args) {
 
-        // Application name and version (String literals)
-        String appName = "BookMyStay - Hotel Booking System";
-        String version = "v1.0";
+        // Creating room objects using polymorphism
+        Room singleRoom = new SingleRoom();
+        Room doubleRoom = new DoubleRoom();
+        Room suiteRoom = new SuiteRoom();
 
-        // Printing welcome message to console
-        System.out.println("Welcome to " + appName);
-        System.out.println("Application Version: " + version);
+        // Static availability (simple variables)
+        int singleRoomAvailable = 5;
+        int doubleRoomAvailable = 3;
+        int suiteRoomAvailable = 2;
 
-        // Indicating application start and end flow
-        System.out.println("Application started successfully.");
-        System.out.println("Application terminated.");
+        // Displaying room details and availability
+        System.out.println("=== Room Details and Availability ===");
+
+        singleRoom.displayDetails();
+        System.out.println("Available: " + singleRoomAvailable);
+        System.out.println();
+
+        doubleRoom.displayDetails();
+        System.out.println("Available: " + doubleRoomAvailable);
+        System.out.println();
+
+        suiteRoom.displayDetails();
+        System.out.println("Available: " + suiteRoomAvailable);
+
+        System.out.println("\nApplication terminated.");
+    }
+}
+
+/**
+ * Abstract class representing a general Room.
+ * Defines common attributes and enforces structure.
+ */
+abstract class Room {
+
+    protected int beds;
+    protected int size; // in square feet
+    protected double price;
+
+    // Constructor
+    public Room(int beds, int size, double price) {
+        this.beds = beds;
+        this.size = size;
+        this.price = price;
+    }
+
+    // Abstract method (must be implemented by subclasses)
+    public abstract String getRoomType();
+
+    // Common method
+    public void displayDetails() {
+        System.out.println("Room Type: " + getRoomType());
+        System.out.println("Beds: " + beds);
+        System.out.println("Size: " + size + " sq ft");
+        System.out.println("Price per night: $" + price);
+    }
+}
+
+/**
+ * Concrete class representing a Single Room.
+ */
+class SingleRoom extends Room {
+
+    public SingleRoom() {
+        super(1, 200, 50.0);
+    }
+
+    @Override
+    public String getRoomType() {
+        return "Single Room";
+    }
+}
+
+/**
+ * Concrete class representing a Double Room.
+ */
+class DoubleRoom extends Room {
+
+    public DoubleRoom() {
+        super(2, 350, 90.0);
+    }
+
+    @Override
+    public String getRoomType() {
+        return "Double Room";
+    }
+}
+
+/**
+ * Concrete class representing a Suite Room.
+ */
+class SuiteRoom extends Room {
+
+    public SuiteRoom() {
+        super(3, 600, 200.0);
+    }
+
+    @Override
+    public String getRoomType() {
+        return "Suite Room";
     }
 }
