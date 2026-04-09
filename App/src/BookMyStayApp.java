@@ -1,64 +1,111 @@
 /**
- * Entry point for demonstrating Room modeling using abstraction and inheritance.
- * This program creates different room types and displays their details
- * along with availability information.
+ * Entry point demonstrating centralized inventory management using HashMap.
+ * This version replaces scattered availability variables with a single
+ * source of truth through the RoomInventory class.
  *
  * @author YourName
- * @version 1.0
+ * @version 2.0
  */
+import java.util.HashMap;
+import java.util.Map;
+
 public class BookMyStayApp {
 
     public static void main(String[] args) {
 
-        // Creating room objects using polymorphism
+        // Creating room objects (domain model remains unchanged)
         Room singleRoom = new SingleRoom();
         Room doubleRoom = new DoubleRoom();
         Room suiteRoom = new SuiteRoom();
 
-        // Static availability (simple variables)
-        int singleRoomAvailable = 5;
-        int doubleRoomAvailable = 3;
-        int suiteRoomAvailable = 2;
+        // Initializing centralized inventory
+        RoomInventory inventory = new RoomInventory();
+        inventory.addRoomType(singleRoom.getRoomType(), 5);
+        inventory.addRoomType(doubleRoom.getRoomType(), 3);
+        inventory.addRoomType(suiteRoom.getRoomType(), 2);
 
-        // Displaying room details and availability
-        System.out.println("=== Room Details and Availability ===");
+        // Displaying room details with availability from inventory
+        System.out.println("=== Centralized Room Inventory ===");
 
-        singleRoom.displayDetails();
-        System.out.println("Available: " + singleRoomAvailable);
-        System.out.println();
+        displayRoom(singleRoom, inventory);
+        displayRoom(doubleRoom, inventory);
+        displayRoom(suiteRoom, inventory);
 
-        doubleRoom.displayDetails();
-        System.out.println("Available: " + doubleRoomAvailable);
-        System.out.println();
+        // Demonstrating update
+        System.out.println("\nUpdating availability (Booking 1 Single Room)...");
+        inventory.updateAvailability("Single Room", -1);
 
-        suiteRoom.displayDetails();
-        System.out.println("Available: " + suiteRoomAvailable);
+        // Display updated inventory
+        System.out.println("\n=== Updated Inventory ===");
+        displayRoom(singleRoom, inventory);
 
         System.out.println("\nApplication terminated.");
+    }
+
+    // Helper method to display room + availability
+    private static void displayRoom(Room room, RoomInventory inventory) {
+        room.displayDetails();
+        int available = inventory.getAvailability(room.getRoomType());
+        System.out.println("Available: " + available);
+        System.out.println();
     }
 }
 
 /**
- * Abstract class representing a general Room.
- * Defines common attributes and enforces structure.
+ * Dedicated class responsible for managing room availability.
+ * Acts as a single source of truth using HashMap.
+ */
+class RoomInventory {
+
+    private Map<String, Integer> availabilityMap;
+
+    // Constructor initializes the HashMap
+    public RoomInventory() {
+        availabilityMap = new HashMap<>();
+    }
+
+    // Register a room type with initial availability
+    public void addRoomType(String roomType, int count) {
+        availabilityMap.put(roomType, count);
+    }
+
+    // Retrieve availability (O(1) lookup)
+    public int getAvailability(String roomType) {
+        return availabilityMap.getOrDefault(roomType, 0);
+    }
+
+    // Controlled update to availability
+    public void updateAvailability(String roomType, int change) {
+        int current = getAvailability(roomType);
+        availabilityMap.put(roomType, current + change);
+    }
+
+    // Display entire inventory
+    public void displayInventory() {
+        System.out.println("=== Inventory Snapshot ===");
+        for (Map.Entry<String, Integer> entry : availabilityMap.entrySet()) {
+            System.out.println(entry.getKey() + " -> Available: " + entry.getValue());
+        }
+    }
+}
+
+/**
+ * Abstract Room class (unchanged domain model).
  */
 abstract class Room {
 
     protected int beds;
-    protected int size; // in square feet
+    protected int size;
     protected double price;
 
-    // Constructor
     public Room(int beds, int size, double price) {
         this.beds = beds;
         this.size = size;
         this.price = price;
     }
 
-    // Abstract method (must be implemented by subclasses)
     public abstract String getRoomType();
 
-    // Common method
     public void displayDetails() {
         System.out.println("Room Type: " + getRoomType());
         System.out.println("Beds: " + beds);
@@ -68,45 +115,33 @@ abstract class Room {
 }
 
 /**
- * Concrete class representing a Single Room.
+ * Concrete Room Types
  */
 class SingleRoom extends Room {
-
     public SingleRoom() {
         super(1, 200, 50.0);
     }
 
-    @Override
     public String getRoomType() {
         return "Single Room";
     }
 }
 
-/**
- * Concrete class representing a Double Room.
- */
 class DoubleRoom extends Room {
-
     public DoubleRoom() {
         super(2, 350, 90.0);
     }
 
-    @Override
     public String getRoomType() {
         return "Double Room";
     }
 }
 
-/**
- * Concrete class representing a Suite Room.
- */
 class SuiteRoom extends Room {
-
     public SuiteRoom() {
         super(3, 600, 200.0);
     }
 
-    @Override
     public String getRoomType() {
         return "Suite Room";
     }
